@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<style>
+table, th, td {
+  border:1px solid black;
+}
+</style>
+<datalist id="deductible_names">
+    {% for name in deductibles %}
+        <option value={{name}}>
+    {% endfor %}
+</datalist>
+<head>
+    <meta charset="UTF-8">
+    <title>Create Order</title>
+</head>
+<body>
+<form action="#" method="POST">
+    <table>
+        <tr>
+            <th colspan="3" align="left">
+                Name:<input size="50" list="customer_names" name="customer_name" id="customer_name">
+                <datalist id="customer_names">
+                    {% for name in name_list %}
+                        <option value={{name}}>
+                    {% endfor %}
+                </datalist>
+            </th>
+        </tr>
+        <tr>
+            <th>Deductible Name</th>
+            <th>Price</th>
+            <th>Monthly</th>
+        </tr>
+        {% for i in range(0,10) %}
+            <tr>
+                <td>
+                    <input size="51" list="deductible_names" name="deductible_{{i}}" id=deductible_{{i}}>
+                </td>
+                <td><input type="number" min="0" name="price_{{i}}" id=price_{{i}}></td>
+                <td><input type="number" min="0" name="monthly_{{i}}" id=monthly_{{i}}></td>
+            </tr>
+        {% endfor %}
+    </table>
+    <p> <input type="submit" value="Create Order" name="submit" /></p>
+
+</form>
+
+
+</body>
+</html>

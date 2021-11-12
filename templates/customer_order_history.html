@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<style>
+table, th, td {
+  border:1px solid black;
+}
+</style>
+<head>
+    <meta charset="UTF-8">
+    <title>{{customer_name}} Order History</title>
+</head>
+<body>
+    <table>
+    <tr>
+        <th colspan="4">{{customer_name}} Order History</th>
+    </tr>
+    <tr>
+        <th>Product Name</th>
+        <th>Price</th>
+        <th>Qty</th>
+        <th>Total</th>
+    </tr>
+    {% if not orders %}
+        <td colspan="4" align="center">none</td>
+    {% endif %}
+    {% for rows in orders %}
+        <tr>
+            {% for cell in rows %}
+                <td>{{cell}}</td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+        <tr>
+            <td colspan="3" align="right">Total</td>
+            <td>{{total}}</td>
+        </tr>
+    </table>
+    {% if other_deductibles %}
+        <br>
+        <table>
+        <tr>
+            <th colspan="5">Other Deductibles</th>
+        </tr>
+        <tr>
+            <th>Product Name</th>
+            <th>Monthly</th>
+            <th>Paid</th>
+            <th>Price</th>
+            <th>Date</th>
+        </tr>
+        {% for rows in other_deductibles %}
+            <tr>
+                {% for cell in rows %}
+                    <td>{{cell}}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </table>
+    {% endif %}
+<form action="#" method="POST">
+    <p> <button class="button" type="submit" >Go back to Home</button></p>
+</form>
+
+</body>
+</html>

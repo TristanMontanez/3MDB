@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>3M Order Database</h2>
+<h3>Order History:</h3>
+
+<form action="#" method="POST">
+    <p>
+        Name:<input list="customer_names" name="customer_name" id="customer_name">
+        <datalist id="customer_names">
+            {% for name in name_list %}
+                <option value={{name}}>
+            {% endfor %}
+        </datalist>
+    </p>
+    <p> <input type="submit" value="Search" name="order_history" /></p>
+</form>
+
+
+</body>
+</html>

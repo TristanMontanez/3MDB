@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<style>
+table, th, td {
+  border:1px solid black;
+}
+</style>
+<head>
+    <meta charset="UTF-8">
+    <title>Successful Order</title>
+</head>
+<body>
+Order Created Successfully
+<br>
+<table>
+    <tr>
+        <th colspan="5">{{customer_name}}</th>
+    </tr>
+    <tr>
+        <th>Deductible Name</th>
+        <th>Monthly</th>
+        <th>Paid</th>
+        <th>Total Cost</th>
+        <th>Date Ordered</th>
+    </tr>
+    {% for rows in data %}
+        <tr>
+            {% for cell in rows %}
+                <td>{{cell}}</td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+
+</table>
+
+
+<form action="#" method="POST">
+    <p> <button class="button" type="submit" >Go back to Home</button></p>
+</form>
+
+</body>
+</html>
