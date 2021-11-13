@@ -62,13 +62,6 @@ def create_order():
 @app.route("/create_other", methods=['POST', 'GET'])
 def create_other():
     if request.method == 'POST':
-        # current_deductible = {
-        #     'customer_id': None,
-        #     'deductible_id_list': [],
-        #     'quantity_list': [],
-        #     'monthly_list': [],
-        # }
-
         customer_id = ml.get_customer_id_by_name(request.form.get('customer_name'))
         if not customer_id:
             return "Order Creation Failed: Customer Name not found in DB"
@@ -140,10 +133,15 @@ def customer_order_history(customer_name):
     if request.method == 'POST':
         return redirect(url_for("home"))
 
+    other_deductibles = None
+
     customer_id = ml.get_customer_id_by_name(customer_name=customer_name)
     orders = ml.get_all_orders_by_customer_id(customer_id=customer_id)
-    total = ml.get_balance_by_customer_id(customer_id=customer_id)[1]
-    other_deductibles = ml.get_all_deductible_data_by_customer_id(customer_id=customer_id)
+    total = ml.get_balance_by_customer_id(customer_id=customer_id)[0]
+
+    if ml.get_all_deductible_data_by_customer_id(customer_id=customer_id):
+        other_deductibles = ml.get_all_deductible_data_by_customer_id(customer_id=customer_id)
+
     return render_template('customer_order_history.html',
                            customer_name=customer_name,
                            orders=orders,

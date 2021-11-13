@@ -1,9 +1,11 @@
+import csv
 import datetime
 import os.path
 import xlsxwriter
 
 from typing import List
 from csv import writer, reader
+from shutil import copyfile
 
 from entity.order import Order
 
@@ -16,6 +18,7 @@ DEDUCTIBLE_ID_DB_PATH = os.path.join(DATABASE_PATH, 'deductible_id_db.csv')
 PRODUCT_DB_PATH = os.path.join(DATABASE_PATH, 'product_db.csv')
 
 
+# =========================================== WRITES =========================================== #
 def create_multiple_orders(product_id_list: List[str],
                            quantity_list: List[int],
                            customer_id: str):
@@ -51,6 +54,7 @@ def create_multiple_deductibles(deductible_list: List,
     if entry_items:
         __upload_multiple_to_db(entry_items=entry_items,
                                 upload_path=DEDUCTIBLE_DB_PATH)
+
 
 def create_excel_file():
     """creates excel file in output directory"""
@@ -112,6 +116,25 @@ def create_excel_file():
     workbook.close()
 
 
+def update_order_and_deductible_db():
+    """
+    Creates a backup of order_db.csv and deductible_db.csv then updates the values
+    Clears grocery orders, subtracts monthly from deductibles
+    """
+    date = datetime.date.today().strftime('%b_%Y')
+    copyfile(ORDER_DB_PATH, os.path.join(OUTPUT_PATH, f'order_db_{date}.csv'))
+    copyfile(DEDUCTIBLE_DB_PATH, os.path.join(OUTPUT_PATH, f'deductible_db_{date}.csv'))
+
+    with open(DEDUCTIBLE_DB_PATH, 'w', newline='') as order_file:
+        order_file_writer = csv.writer(order_file)
+        order_file_writer.writerow(['customer_id', 'price', 'deductible_id', 'monthly', 'paid', 'date_purchased'])
+        order_file.close()
+
+
+# ============================================================================================== #
+
+
+# ========================================== CUSTOMER ========================================== #
 def get_all_customer_names_alphabetically():
     """returns an alphabetical order of all customer names"""
     customer_db = reader(open(CUSTOMER_DB_PATH, 'r'), delimiter=',')
@@ -138,8 +161,10 @@ def get_customer_id_by_name(customer_name: str):
         if customer_name == row[1]:
             return row[0]
     return None
+# ============================================================================================== #
 
 
+# ========================================== PRODUCT =========================================== #
 def get_all_product_names():
     """returns an alphabetical order of all products"""
     product_db = reader(open(PRODUCT_DB_PATH, 'r'), delimiter=',')
@@ -148,16 +173,6 @@ def get_all_product_names():
         products.append(row[1])
     products.pop(0)
     return sorted(products)
-
-
-def get_all_deductible_names():
-    """returns an alphabetical order of all products"""
-    deductible_db = reader(open(DEDUCTIBLE_ID_DB_PATH, 'r'), delimiter=',')
-    deductibles = []
-    for row in deductible_db:
-        deductibles.append(row[1])
-    deductibles.pop(0)
-    return sorted(deductibles)
 
 
 def get_product_id_by_name(product_name: str):
@@ -169,30 +184,33 @@ def get_product_id_by_name(product_name: str):
     return None
 
 
-def get_deductible_id_by_name(deductible_name: str):
-    """searches deductible database and returns product id with corresponding name"""
-    deductible_db = reader(open(DEDUCTIBLE_ID_DB_PATH, 'r'), delimiter=',')
-    for row in deductible_db:
-        if deductible_name == row[1]:
-            return row[0]
-    return None
-
-
-def get_deductible_name_by_id(deductible_id: str):
-    """searches deductible database and returns deductible name with corresponding id"""
-    deductible_db = reader(open(DEDUCTIBLE_ID_DB_PATH, 'r'), delimiter=',')
-    for row in deductible_db:
-        if deductible_id == row[0]:
-            return row[1]
-    return None
-
-
 def get_product_data_by_id(product_id: str):
     """searches product database and returns product name, price with corresponding id"""
     product_db = reader(open(PRODUCT_DB_PATH, 'r'), delimiter=',')
     for row in product_db:
         if product_id == row[0]:
             return [row[1], row[2]]
+    return None
+# ============================================================================================== #
+
+
+# ======================================= DEDUCTIBLES ========================================== #
+def get_all_deductible_names():
+    """returns an alphabetical order of all products"""
+    deductible_db = reader(open(DEDUCTIBLE_ID_DB_PATH, 'r'), delimiter=',')
+    deductibles = []
+    for row in deductible_db:
+        deductibles.append(row[1])
+    deductibles.pop(0)
+    return sorted(deductibles)
+
+
+def get_deductible_id_by_name(deductible_name: str):
+    """searches deductible database and returns product id with corresponding name"""
+    deductible_db = reader(open(DEDUCTIBLE_ID_DB_PATH, 'r'), delimiter=',')
+    for row in deductible_db:
+        if deductible_name == row[1]:
+            return row[0]
     return None
 
 
@@ -223,14 +241,16 @@ def get_all_deductible_data_by_customer_id(customer_id: str):
     deductible_data = []
     for row in deductible_db:
         if customer_id == row[0]:
+            deductible = get_deductible_data_by_id(deductible_id=row[2])
             deductible_data.append([
-                get_deductible_name_by_id(deductible_id=row[2]),
+                deductible[0],
                 row[3],
                 row[4],
-                row[1],
+                deductible[1],
                 row[5]
             ])
     return deductible_data
+# ============================================================================================== #
 
 
 def get_balance_by_customer_id(customer_id: str):
