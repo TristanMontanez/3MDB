@@ -164,6 +164,7 @@ def register_customer(customer_name: str,
                       department: str):
     """Registers customer to customer DB"""
     customer_db = reader(open(CUSTOMER_DB_PATH, 'r'), delimiter=',')
+    customer_name = customer_name.upper()
     i = 0
     if department not in ['ICING', 'ICING (DAILY)', 'QC', 'PACKING']:
         raise ValueError
