@@ -200,6 +200,7 @@ def get_customer_name_by_id(customer_id: str):
 def get_customer_id_by_name(customer_name: str):
     """searches customer database and returns customer id with corresponding name"""
     customer_db = reader(open(CUSTOMER_DB_PATH, 'r'), delimiter=',')
+    customer_name = customer_name.replace(' ','_')
     for row in customer_db:
         if customer_name == row[1]:
             return row[0]
