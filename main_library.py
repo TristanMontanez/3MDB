@@ -310,8 +310,9 @@ def get_balance_by_customer_id(customer_id: str):
 
     deductible_bal = 0
     for row in deductible_db:
-        if customer_id == row[0]:
-            deductible_bal += int(row[3])
+        if row:
+            if customer_id == row[0]:
+                deductible_bal += int(row[3])
 
     return [grocery_bal + deductible_bal, grocery_bal, deductible_bal]
 
