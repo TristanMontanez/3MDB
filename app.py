@@ -1,3 +1,5 @@
+import time
+
 from flask import Flask, render_template, request, redirect, url_for, session
 import main_library as ml
 
@@ -19,7 +21,9 @@ def home():
         return redirect(url_for("create_other"))
     elif request.method == 'POST' and request.form.get('create_deduction_file'):
         ml.create_excel_file()
-        return redirect(url_for("redirect_to_home"))
+        return redirect(url_for("confirm_clear_db"))
+    elif request.method == 'POST' and request.form.get('register_customer'):
+        return redirect(url_for('register_customer'))
     else:
         return render_template('home.html')
 
@@ -137,7 +141,7 @@ def customer_order_history(customer_name):
 
     customer_id = ml.get_customer_id_by_name(customer_name=customer_name)
     orders = ml.get_all_orders_by_customer_id(customer_id=customer_id)
-    total = ml.get_balance_by_customer_id(customer_id=customer_id)[0]
+    total = ml.get_balance_by_customer_id(customer_id=customer_id)[1]
 
     if ml.get_all_deductible_data_by_customer_id(customer_id=customer_id):
         other_deductibles = ml.get_all_deductible_data_by_customer_id(customer_id=customer_id)
@@ -149,11 +153,26 @@ def customer_order_history(customer_name):
                            other_deductibles=other_deductibles)
 
 
-@app.route("/redirect", methods=['POST', 'GET'])
-def redirect_to_home():
+@app.route("/clear_db", methods=['POST', 'GET'])
+def confirm_clear_db():
     if request.method == 'POST':
+        time.sleep(2)
+        if request.form.get('deduct'):
+            ml.update_order_and_deductible_db()
         return redirect(url_for("home"))
-    return render_template('redirect_to_home.html')
+    return render_template('confirm_clear_db.html')
+
+
+@app.route("/register_customer/", methods=['POST', 'GET'])
+def register_customer():
+    if request.method == 'POST':
+        customer_name = request.form['customer_name']
+        department = request.form['department']
+        ml.register_customer(customer_name=customer_name,
+                             department=department)
+        return redirect(url_for('home'))
+    else:
+        return render_template('register_customer.html')
 
 
 if __name__ == '__main__':

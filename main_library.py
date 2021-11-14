@@ -6,11 +6,13 @@ import xlsxwriter
 from typing import List
 from csv import writer, reader
 from shutil import copyfile
+from operator import itemgetter
 
 from entity.order import Order
 
 DATABASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'table'))
 OUTPUT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'output'))
+BACKUP_PATH = os.path.join(OUTPUT_PATH, 'backup')
 CUSTOMER_DB_PATH = os.path.join(DATABASE_PATH, 'customer_db.csv')
 ORDER_DB_PATH = os.path.join(DATABASE_PATH, 'order_db.csv')
 DEDUCTIBLE_DB_PATH = os.path.join(DATABASE_PATH, 'deductible_db.csv')
@@ -59,6 +61,13 @@ def create_multiple_deductibles(deductible_list: List,
 def create_excel_file():
     """creates excel file in output directory"""
     file_path = os.path.join(OUTPUT_PATH, 'DEDUCTION_' + datetime.date.today().strftime('%b_%d_%Y') + '.xlsx')
+
+    i = 2
+    while os.path.exists(file_path):
+        file_path = os.path.join(OUTPUT_PATH, 'DEDUCTION_' + datetime.date.today().strftime('%b_%d_%Y') + f'_{i}.xlsx')
+        print(file_path)
+        i += 1
+
     file_path = __does_file_already_exist(file_path)
 
     workbook = xlsxwriter.Workbook(file_path)
@@ -102,13 +111,14 @@ def create_excel_file():
         row += 1
         for customer_id, name in customer_ids:
             balance = get_balance_by_customer_id(customer_id)
-            worksheet.write(row, 0, count, cell_number)
-            worksheet.write(row, 1, name, cell_format)
-            worksheet.write(row, 2, balance[1], cell_currency)
-            worksheet.write(row, 3, balance[2], cell_currency)
-            worksheet.write(row, 4, balance[0], cell_currency)
-            row += 1
-            count += 1
+            if balance[0]:
+                worksheet.write(row, 0, count, cell_number)
+                worksheet.write(row, 1, name, cell_format)
+                worksheet.write(row, 2, balance[1], cell_currency)
+                worksheet.write(row, 3, balance[2], cell_currency)
+                worksheet.write(row, 4, balance[0], cell_currency)
+                row += 1
+                count += 1
 
         row += 1
 
@@ -122,8 +132,27 @@ def update_order_and_deductible_db():
     Clears grocery orders, subtracts monthly from deductibles
     """
     date = datetime.date.today().strftime('%b_%Y')
-    copyfile(ORDER_DB_PATH, os.path.join(OUTPUT_PATH, f'order_db_{date}.csv'))
-    copyfile(DEDUCTIBLE_DB_PATH, os.path.join(OUTPUT_PATH, f'deductible_db_{date}.csv'))
+    copyfile(ORDER_DB_PATH, os.path.join(BACKUP_PATH, f'order_db_{date}.csv'))
+    copyfile(DEDUCTIBLE_DB_PATH, os.path.join(BACKUP_PATH, f'deductible_db_{date}.csv'))
+
+    with open(ORDER_DB_PATH, 'w', newline='') as order_file:
+        order_file_writer = csv.writer(order_file)
+        order_file_writer.writerow(['order_id', 'customer_id', 'total', 'product_id', 'quantity'])
+        order_file.close()
+
+    new_deductible_db_list = []
+    deductible_db = reader(open(DEDUCTIBLE_DB_PATH, 'r'), delimiter=',')
+    for row in deductible_db:
+        paid = row[4] + row[3]
+        if paid <= row[1]:
+            new_deductible_db_list.append([
+                row[0],                         # customer_id
+                row[1],                         # price
+                row[2],                         # deductible_id
+                row[3],                         # monthly
+                paid,                           # paid
+                row[5]                          # date purchased
+            ])
 
     with open(DEDUCTIBLE_DB_PATH, 'w', newline='') as order_file:
         order_file_writer = csv.writer(order_file)
@@ -131,6 +160,20 @@ def update_order_and_deductible_db():
         order_file.close()
 
 
+def register_customer(customer_name: str,
+                      department: str):
+    """Registers customer to customer DB"""
+    customer_db = reader(open(CUSTOMER_DB_PATH, 'r'), delimiter=',')
+    i = 0
+    if department not in ['ICING', 'ICING (DAILY)', 'QC', 'PACKING']:
+        raise ValueError
+
+    for _ in customer_db:
+        i += 1
+
+    customer_id = f'Customer_{str(i).zfill(4)}'
+    __upload_multiple_to_db(entry_items=[[customer_id, customer_name.replace(' ', '_'), department]],
+                            upload_path=CUSTOMER_DB_PATH)
 # ============================================================================================== #
 
 
@@ -196,7 +239,7 @@ def get_product_data_by_id(product_id: str):
 
 # ======================================= DEDUCTIBLES ========================================== #
 def get_all_deductible_names():
-    """returns an alphabetical order of all products"""
+    """returns an alphabetical order of all deductibles"""
     deductible_db = reader(open(DEDUCTIBLE_ID_DB_PATH, 'r'), delimiter=',')
     deductibles = []
     for row in deductible_db:
@@ -301,4 +344,5 @@ def __search_customer_db_per_department(department: str):
     for row in customer_db:
         if department == row[2]:
             items.append([row[0], row[1].replace('_', ' ').upper()])
-    return items
+
+    return sorted(items, key=itemgetter(1))
