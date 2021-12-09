@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<style>
+table, th, td {
+  border:1px solid black;
+}
+</style>
+<head>
+    <meta charset="UTF-8">
+    <title>{{customer_name}} Order History</title>
+</head>
+<body>
+    <table>
+    <tr>
+        <th>Customer Name</th>
+        <th>Department</th>
+    </tr>
+    {% for rows in customers %}
+        <tr>
+            {% for cell in rows %}
+                <td>{{cell}}</td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+    </table>
+
+<form action="#" method="POST">
+    <p> <button class="button" type="submit" >Go back to Home</button></p>
+</form>
+
+</body>
+</html>

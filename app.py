@@ -39,7 +39,7 @@ def create_order():
 
         customer_id = ml.get_customer_id_by_name(request.form.get('customer_name'))
         if not customer_id:
-            return "Order Creation Failed: Customer Name not found in DB"
+            return f"{request.form.get('customer_name')} Order Creation Failed: Customer Name not found in DB"
 
         current_order['customer_id'] = customer_id
 
@@ -165,14 +165,25 @@ def confirm_clear_db():
 
 @app.route("/register_customer/", methods=['POST', 'GET'])
 def register_customer():
-    if request.method == 'POST':
+    if request.method == 'POST' and request.form.get('register_customer'):
         customer_name = request.form['customer_name']
         department = request.form['department']
         ml.register_customer(customer_name=customer_name,
                              department=department)
+        app.run()
         return redirect(url_for('home'))
+    elif request.method == 'POST' and request.form.get('see_customer_db'):
+        return redirect(url_for('customer_db'))
     else:
         return render_template('register_customer.html')
+
+
+@app.route("/register_customer/", methods=['POST', 'GET'])
+def customer_db():
+    if request.method == 'POST':
+        return redirect(url_for('home'))
+    else:
+        return render_template('customer_db.html', customers=ml.get_all_customer_data())
 
 
 if __name__ == '__main__':

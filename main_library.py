@@ -189,6 +189,16 @@ def get_all_customer_names_alphabetically():
     return sorted(customers)
 
 
+def get_all_customer_data():
+    """returns an alphabetical order of all customer names"""
+    customer_db = reader(open(CUSTOMER_DB_PATH, 'r'), delimiter=',')
+    customers = []
+    for row in customer_db:
+        customers.append(row[1], row[2])
+    customers.pop(0)
+    return sorted(customers, key=itemgetter(0))
+
+
 def get_customer_name_by_id(customer_id: str):
     """searches customer database and returns customer name with corresponding id"""
     customer_db = reader(open(CUSTOMER_DB_PATH, 'r'), delimiter=',')
