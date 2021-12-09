@@ -72,16 +72,15 @@ def create_other():
 
         session['other'] = {'customer_id': customer_id}
         deductible_list = []
-        for i in range(0, 12):
-            deductible_name = request.form.get('deductible_'+str(i))
-            price = request.form.get('price_'+str(i))
-            monthly = request.form.get('monthly_'+str(i))
-            deductible_id = ml.get_deductible_id_by_name(deductible_name=deductible_name)
-            if deductible_id and price and monthly:
-                deductible = [price, deductible_id, monthly]
-                deductible_list.append(deductible)
-                ml.create_multiple_deductibles(deductible_list=deductible_list,
-                                               customer_id=customer_id)
+        deductible_name = request.form.get('deductible')
+        price = request.form.get('price')
+        monthly = request.form.get('monthly')
+        deductible_id = ml.get_deductible_id_by_name(deductible_name=deductible_name)
+        if deductible_id and price and monthly:
+            deductible = [price, deductible_id, monthly]
+            deductible_list.append(deductible)
+            ml.create_multiple_deductibles(deductible_list=deductible_list,
+                                           customer_id=customer_id)
 
         return redirect(url_for("created_other"))
     else:
@@ -158,7 +157,7 @@ def confirm_clear_db():
     if request.method == 'POST':
         time.sleep(2)
         if request.form.get('deduct'):
-            ml.update_order_and_deductible_db()
+            ml.clear_order_and_deductible_db()
         return redirect(url_for("home"))
     return render_template('confirm_clear_db.html')
 

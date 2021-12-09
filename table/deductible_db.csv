@@ -1,6 +1,1 @@
 customer_id,price,deductible_id,monthly,paid,date_purchased
-Customer_0002,3000,3000,1500,0,11_11_2021
-Customer_0002,3000,3001,1500,0,11_11_2021
-Customer_0002,3000,3002,1500,0,11_11_2021
-Customer_0002,3000,3003,1500,0,11_11_2021
-Customer_0005,5000,3000,1000,0,"Nov 12, 2021"

@@ -32,15 +32,15 @@ table, th, td {
             <th>Price</th>
             <th>Monthly</th>
         </tr>
-        {% for i in range(0,10) %}
-            <tr>
-                <td>
-                    <input size="51" list="deductible_names" name="deductible_{{i}}" id=deductible_{{i}}>
-                </td>
-                <td><input type="number" min="0" name="price_{{i}}" id=price_{{i}}></td>
-                <td><input type="number" min="0" name="monthly_{{i}}" id=monthly_{{i}}></td>
-            </tr>
-        {% endfor %}
+
+        <tr>
+            <td>
+                <input size="51" list="deductible_names" name="deductible" id=deductible>
+            </td>
+            <td><input type="number" min="0" name="price" id=price_></td>
+            <td><input type="number" min="0" name="monthly" id=monthly></td>
+        </tr>
+
     </table>
     <p> <input type="submit" value="Create Order" name="submit" /></p>
 

@@ -126,7 +126,7 @@ def create_excel_file():
     workbook.close()
 
 
-def update_order_and_deductible_db():
+def clear_order_and_deductible_db():
     """
     Creates a backup of order_db.csv and deductible_db.csv then updates the values
     Clears grocery orders, subtracts monthly from deductibles
@@ -142,9 +142,10 @@ def update_order_and_deductible_db():
 
     new_deductible_db_list = []
     deductible_db = reader(open(DEDUCTIBLE_DB_PATH, 'r'), delimiter=',')
+    _ = next(deductible_db)
     for row in deductible_db:
-        paid = row[4] + row[3]
-        if paid <= row[1]:
+        paid = int(row[4]) + int(row[3])
+        if paid < int(row[1]):
             new_deductible_db_list.append([
                 row[0],                         # customer_id
                 row[1],                         # price
@@ -157,6 +158,9 @@ def update_order_and_deductible_db():
     with open(DEDUCTIBLE_DB_PATH, 'w', newline='') as order_file:
         order_file_writer = csv.writer(order_file)
         order_file_writer.writerow(['customer_id', 'price', 'deductible_id', 'monthly', 'paid', 'date_purchased'])
+        if new_deductible_db_list:
+            for row in new_deductible_db_list:
+                order_file_writer.writerow(row)
         order_file.close()
 
 
