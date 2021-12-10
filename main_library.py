@@ -94,8 +94,13 @@ def create_excel_file():
 
     departments = [
         'ICING',
-        'ICING (DAILY)',
+        'ICING(DAILY)',
         'QC',
+        'BREAD',
+        'BISCUIT',
+        'CANDY',
+        'FORMULATION',
+        'WAREHOUSE',
         'PACKING',
     ]
 
