@@ -2,15 +2,14 @@ from csv import reader
 from typing import List, Dict
 import os.path
 
-DATABASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../table'))
-DATABASE_PATH = os.path.join(DATABASE_PATH, 'customer_db.csv')
+# DATABASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../table'))
+# DATABASE_PATH = os.path.join(DATABASE_PATH, 'customer_db.csv')
 
 
 class BaseControllerClass:
     """Base Controller Class"""
     def __init__(self, entry_db):
         self.entry_db = entry_db
-        self.entry_db = DATABASE_PATH
 
     def get_all_by_column(self, column: int, alphabetical: bool = True) -> List:
         """
@@ -37,20 +36,21 @@ class BaseControllerClass:
         """
         db = reader(open(self.entry_db, 'r'), delimiter=',')
         parameters_list = list(query.keys())
+        output = []
         parameters_dict = {}
         first_row = next(db)
         for parameter in parameters_list:
             if parameter in first_row:
                 parameters_dict[parameter] = first_row.index(parameter)
 
-        second_row = next(db)
-        for parameter in parameters_list:
-            print(parameter)
-            print(1)
-            if not second_row[parameters_dict.get(parameter)] == query.get(parameter):
-                print(2)
-                break
-            else:
-                continue
+        last_param = parameters_list[-1]
+        for row in db:
+            for parameter in parameters_list:
+                if not row[parameters_dict.get(parameter)] == query.get(parameter):
+                    break
+                elif parameter == last_param:
+                    output.append(row)
+                else:
+                    continue
 
-        print(3)
+        return output
